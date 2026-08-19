@@ -4,7 +4,7 @@ import threading
 from flask import Flask
 
 # ТОКЕН ОТ BOTFATHER (вставь свой)
-TOKEN = "Здесь_твой_токен"
+TOKEN = "8872204223:AAHb7qcfi1HSo-PfKHR7j0mlSaa6eT-LwtQ"
 bot = telebot.TeleBot(TOKEN)
 
 # ------------------------------------------
