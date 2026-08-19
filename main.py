@@ -1,12 +1,14 @@
 import telebot
 import random
+import threading
+from flask import Flask
 
 # ТОКЕН ОТ BOTFATHER (вставь свой)
-TOKEN = "8872204223:AAHb7qcfi1HSo-PfKHR7j0mlSaa6eT-LwtQ"
+TOKEN = "Здесь_твой_токен"
 bot = telebot.TeleBot(TOKEN)
 
 # ------------------------------------------
-# 1. СПИСКИ ГЕРОЕВ
+# 1. СПИСКИ ГЕРОЕВ, ПРЕДМЕТОВ и т.д. (Твой старый код)
 # ------------------------------------------
 heroes = [
     "🏹 Мия", "🪓 Бальмонд", "⚔️ Сабер", "🧙 Алиса", "🎀 Нана", "🛡️ Тигрил", "🗡️ Алукард", "🗡️ Карина", "🦊 Акай",
@@ -27,9 +29,6 @@ heroes = [
     "🔥 Лукас", "🌊 Калеа", "⚔️ Цзэтянь", "🗡️ Обсидия", "🛡️ Сора", "🗡️ Марсель", "🦋 Хирара"
 ]
 
-# ------------------------------------------
-# 2. СПИСКИ ПРЕДМЕТОВ
-# ------------------------------------------
 items = [
     "👢 Сапоги воина", "👢 Ботинки демона", "👟 Сапоги-скороходы", "👢 Сапоги спешки", 
     "👢 Сапоги Заклинателя", "👢 Магические ботинки", "👢 Прочные Сапоги",
@@ -49,27 +48,10 @@ items = [
     "🪡 Шипованная броня"
 ]
 
-# ------------------------------------------
-# 3. СПИСКИ ЭМБЛЕМ И ТАЛАНТОВ
-# ------------------------------------------
-emblems = [
-    "Обычная эмблема", "Эмблема танка", "Эмблема убийцы", 
-    "Эмблема мага", "Эмблема бойца", "Эмблема поддержки", "Эмблема стрелка"
-]
+emblems = ["Обычная эмблема", "Эмблема танка", "Эмблема убийцы", "Эмблема мага", "Эмблема бойца", "Эмблема поддержки", "Эмблема стрелка"]
+talents = ["Трепет", "Проворность", "Опытный охотник", "Благословение природы", "Боевой ключ", "Квантовый заряд", "Временное правление", "Нечестивая ярость", "Живучесть", "Стойкость", "Ударная волна", "Разрыв", "Мастер-убийца", "Убийственный пир", "Вдохновение", "Охотник за скидками", "Смертельное воспламенение", "Прочность", "Кровавое пиршество", "Отвага", "Ловкость", "Второе дыхание", "Фокус-метка", "Фатальность", "Мастер оружий", "Точно в цель"]
 
-talents = [
-    "Трепет", "Проворность", "Опытный охотник", "Благословение природы", 
-    "Боевой ключ", "Квантовый заряд", "Временное правление", "Нечестивая ярость",
-    "Живучесть", "Стойкость", "Ударная волна", "Разрыв", "Мастер-убийца", 
-    "Убийственный пир", "Вдохновение", "Охотник за скидками", 
-    "Смертельное воспламенение", "Прочность", "Кровавое пиршество", "Отвага",
-    "Ловкость", "Второе дыхание", "Фокус-метка", "Фатальность", 
-    "Мастер оружий", "Точно в цель"
-]
-
-# ------------------------------------------
-# 4. КОМАНДА ЗАПУСКА (/пиво)
-# ------------------------------------------
+# Команда /пиво
 @bot.message_handler(commands=['пиво'])
 def start(message):
     remove_markup = telebot.types.ReplyKeyboardRemove()
@@ -88,25 +70,20 @@ def start(message):
     markup.add(btn3, btn4)
     markup.add(btn5, btn6)
     markup.add(btn7)
-    
     bot.send_message(message.chat.id, "Привет! Выбери режим рандома:", reply_markup=markup)
 
-# ------------------------------------------
-# 5. ОБРАБОТЧИК НАЖАТИЙ КНОПОК
-# ------------------------------------------
+# Обработчик кнопок (твоя логика без изменений)
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if call.data == 'hero':
         hero = random.choice(heroes)
         bot.send_message(call.message.chat.id, f"⚔️ Твой случайный герой: *{hero}*", parse_mode='Markdown')
-        
     elif call.data == 'build':
         selected_items = random.sample(items, 6)
         result = "🛠 Твоя безумная сборка:\n"
         for i, item in enumerate(selected_items, 1):
             result += f"{i}. {item}\n"
         bot.send_message(call.message.chat.id, result)
-        
     elif call.data == 'full_random':
         hero = random.choice(heroes)
         selected_items = random.sample(items, 6)
@@ -114,13 +91,11 @@ def callback_query(call):
         for i, item in enumerate(selected_items, 1):
             result += f"{i}. {item}\n"
         bot.send_message(call.message.chat.id, result)
-
     elif call.data == 'emblems':
         emblem = random.choice(emblems)
         random_talents = random.sample(talents, 3)
         result = f"🎖️ *Эмблема:* {emblem}\n\n🔮 *Таланты:*\n1. {random_talents[0]}\n2. {random_talents[1]}\n3. {random_talents[2]}"
         bot.send_message(call.message.chat.id, result, parse_mode='Markdown')
-
     elif call.data == 'guide_menu':
         markup = telebot.types.InlineKeyboardMarkup()
         btn_jungle = telebot.types.InlineKeyboardButton("🌲 Лес", callback_data='lane_jungle')
@@ -131,7 +106,6 @@ def callback_query(call):
         markup.add(btn_jungle, btn_mid, btn_gold)
         markup.add(btn_exp, btn_roam)
         bot.send_message(call.message.chat.id, "🗺️ Выбери линию, по которой хочешь получить гайд:", reply_markup=markup)
-
     elif call.data == 'lane_jungle':
         bot.send_message(call.message.chat.id, "🌲 Вот видео-гайд по лесу (Джунгли):\nhttps://youtu.be/ZapDyO_eJKc?si=_CfThJycWPTIND8S")
     elif call.data == 'lane_mid':
@@ -142,20 +116,25 @@ def callback_query(call):
         bot.send_message(call.message.chat.id, "⚡ Вот видео-гайд по линии опыта (Эксп):\nhttps://youtu.be/Kp7d1e-lZAo?si=c2xuq7XiM3yvdwhM")
     elif call.data == 'lane_roam':
         bot.send_message(call.message.chat.id, "👣 Вот видео-гайд по линии поддержки (Роум):\nhttps://youtu.be/xwdRPVzHr4A?si=t3u_9XBJJxB8OXqt")
-
-    # КОМАР
     elif call.data == 'kill_mosquito':
         bot.send_message(call.message.chat.id, "🦟💥 Вы убили комара!")
-
-    # РУЛЕТКА КАЗИНО (ДЕПНУТЬ МАТЬ)
     elif call.data == 'deposit_mom':
-        bot.send_message(call.message.chat.id, "🎰 Кручу-верчу, обмануть хочу...\n\nПоздравляю! Ты проебал мать в казик, иди нахуй! 😂")
-
-    # Обязательная строчка для убирания "часиков" загрузки с нажатой кнопки
+        bot.send_message(call.message.chat.id, "🎰 Кручу-верчу, обмануть хочу...\n\nПоздравляю! Ты проиграл(а) все деньги в казино! 😂")
     bot.answer_callback_query(call.id)
 
-# ------------------------------------------
-# ЗАПУСК БОТА
-# ------------------------------------------
-print("Бот запущен...")
-bot.polling(non_stop=True)
+# ========= ВЕБ-СЕРВЕР ДЛЯ RENDER (заглушка) =========
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return "Бот работает!"
+
+def run_bot():
+    bot.polling(non_stop=True)
+
+if __name__ == "__main__":
+    # Запускаем бота в фоновом потоке
+    t = threading.Thread(target=run_bot)
+    t.daemon = True
+    t.start()
+    # Запускаем сервер, который держит порт открытым
+    app.run(host='0.0.0.0', port=10000)
